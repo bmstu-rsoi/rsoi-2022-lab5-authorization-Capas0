@@ -1,0 +1,24 @@
+apiVersion: v2
+name: services
+type: application
+version: 1.0.0
+
+dependencies:
+  - name: service
+    version: 1.0.0
+    alias: gateway
+
+  - name: service
+    version: 1.0.0
+    alias: library
+
+  - name: service
+    version: 1.0.0
+    alias: rating
+
+  - name: service
+    version: 1.0.0
+    alias: reservation
+
+  - name: postgres
+    version: 1.0.0

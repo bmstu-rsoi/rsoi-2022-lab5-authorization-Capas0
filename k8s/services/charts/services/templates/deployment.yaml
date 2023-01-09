@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    app.kubernetes.io/name: {{ .Chart.Name }}
+    app.kubernetes.io/version: {{ .Values.service.image.version }}
+    app.kubernetes.io/component: application
+    app.kubernetes.io/part-of: library-system
+    app.kubernetes.io/managed-by: helm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Chart.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        app.kubernetes.io/name: {{ .Chart.Name }}
+        app.kubernetes.io/version: {{ .Values.service.image.version }}
+        app.kubernetes.io/component: application
+        app.kubernetes.io/part-of: library-system
+        app.kubernetes.io/managed-by: helm
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          imagePullPolicy: Always
+          image: "{{ .Values.dockerRegistry }}/{{ .Values.service.image.name }}:{{ .Values.service.image.version }}"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "128Mi"
+              cpu: "100m"
+          env:
+            - name: APP_FOLDER
+              value: /app
+            - name: FLASK_APP
+              value: __init__
+            - name: PORT
+              value: "{{ .Values.service.port }}"
+            - name: DATABASE_URL
+              value: "postgresql://program:test@postgres:5432/{{ .Values.database }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+      restartPolicy: Always

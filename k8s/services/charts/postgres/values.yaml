@@ -1,0 +1,18 @@
+version: 13
+port: 5432
+
+default:
+  user: postgres
+  password: postgres
+
+user:
+  name: program
+  password: test
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 128Mi
+  limits:
+    cpu: 200m
+    memory: 256Mi

@@ -1,0 +1,42 @@
+postgres:
+  version: 13
+  port: 5432
+
+  default:
+    user: postgres
+    password: postgres
+
+  user:
+    name: program
+    password: test
+
+gateway:
+  service:
+    port: 8080
+    image:
+      name: rsoi-lab4-gateway
+      version: latest
+
+library:
+  service:
+    port: 8060
+    image:
+      name: rsoi-lab4-library
+      version: latest
+  database: libraries
+
+rating:
+  service:
+    port: 8050
+    image:
+      name: rsoi-lab4-rating
+      version: latest
+  database: ratings
+
+reservation:
+  service:
+    port: 8070
+    image:
+      name: rsoi-lab4-reservation
+      version: latest
+  database: reservations

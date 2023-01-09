@@ -13,13 +13,36 @@ jobs:
 
       - uses: docker/setup-buildx-action@v2
 
-      # TODO build, publish to docker hub, deploy to k8s
+      - name: Install Kubectl
+        uses: Azure/setup-kubectl@v3
+
+      - name: Configure kubectl
+        run: |
+          export KUBECONFIG=$PWD/k8s/config.yaml
+
+      - name: Yandex Cloud CR "Login" Action for GitHub Actions
+        uses: yc-actions/yc-cr-login@v1
+        with:
+          yc-sa-json-credentials: ${{ secrets.YC_SA_JSON_CREDENTIALS }}
+
+      - name: Build, tag, and push image to Yandex Cloud Container Registry
+        run: |
+          docker-compose build
+          docker-compose push
+
+      - name: Deploy to k8s
+        run: |
+          helm uninstall library-system
+          helm install library-system k8s/services
+
+      - name: Wait
+        run: sleep 60
 
       - name: Run API Tests
         uses: matt-ball/newman-action@master
         with:
-          collection: <variant>/postman/collection.json
-          environment: <variant>/postman/environment.json
+          collection: v4/postman/collection.json
+          environment: v4/postman/environment.json
           delayRequest: 100
           reporters: '[ "cli" ]'
 

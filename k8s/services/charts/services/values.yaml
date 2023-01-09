@@ -1,0 +1,9 @@
+dockerRegistry: cr.yandex/crpdp3dvnfjjbr6q6ie5
+
+service:
+  port:
+  image:
+    name:
+    version:
+
+database:
