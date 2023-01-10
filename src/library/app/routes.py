@@ -1,9 +1,10 @@
 from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 
+from . import schemas
+from .auth import authorized
 from .base import db
 from .models import Library, Book, LibraryBook
-from . import schemas
 
 api = Blueprint('api', __name__)
 
@@ -33,6 +34,7 @@ def format_validation_error(text, error):
 
 
 @api.route('/libraries', methods=['GET'])
+@authorized()
 def list_libraries():
     try:
         args = schemas.LibraryPaginationRequestSchema().load(request.args)
@@ -50,6 +52,7 @@ def list_libraries():
 
 
 @api.route('/libraries/<library_uid>', methods=['GET'])
+@authorized()
 def get_library(library_uid):
     library = db.session.execute(
         db.select(Library).where(Library.library_uid == library_uid)
@@ -60,6 +63,7 @@ def get_library(library_uid):
 
 
 @api.route('/libraries/<library_uid>/books', methods=['GET'])
+@authorized()
 def get_library_books(library_uid):
     try:
         args = schemas.LibraryBookPaginationRequestSchema().load(request.args)
@@ -91,6 +95,7 @@ def get_library_books(library_uid):
 
 
 @api.route('/books/<book_uid>', methods=['GET'])
+@authorized()
 def get_book(book_uid):
     book = db.session.execute(
         db.select(Book).where(Book.book_uid == book_uid)
@@ -101,6 +106,7 @@ def get_book(book_uid):
 
 
 @api.route('/libraries/<library_uid>/books/<book_uid>', methods=['PATCH'])
+@authorized()
 def edit_library_book(library_uid, book_uid):
     library_book = db.session.execute(
         db.select(LibraryBook).join(Library).join(Book)

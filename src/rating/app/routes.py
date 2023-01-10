@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 from sqlalchemy.exc import DataError
 
+from .auth import authorized
 from .base import db
 from .models import Rating
 from .schemas import RatingSchema
@@ -22,19 +23,19 @@ def format_validation_error(text, error):
     }
 
 
-def parse_args():
+def parse_args(username):
     data = request.json
-    if username := request.headers.get('X-User-Name'):
-        data['username'] = username
+    data['username'] = username
     args = RatingSchema().load(data)
     args['stars'] = min(100, max(1, args.get('stars', 1)))
     return args
 
 
 @api.route('/rating', methods=['PATCH'])
-def edit_rating():
+@authorized(username=True)
+def edit_rating(username):
     try:
-        args = parse_args()
+        args = parse_args(username)
         try:
             rating = db.session.execute(
                 db.select(Rating).where(Rating.username == args['username'])
@@ -50,8 +51,8 @@ def edit_rating():
 
 
 @api.route('/rating', methods=['GET'])
-def get_rating():
-    username = request.headers.get('X-User-Name')
+@authorized(username=True)
+def get_rating(username):
     rating = db.session.execute(
         db.select(Rating).where(Rating.username == username)
     ).scalars().first()
