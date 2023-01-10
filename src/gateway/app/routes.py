@@ -1,17 +1,31 @@
-from queue import Queue
-
 import requests
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, session, current_app, jsonify, url_for, redirect
 
-from .connector import NetworkConnector, Services
+from .auth import authorized, oauth
+from .connector import NetworkConnector, Services, failed_requests
 
 api = Blueprint('api', __name__)
 
 connector = NetworkConnector()
-failed_requests = Queue(maxsize=10000)
+
+
+@api.route("/callback", methods=["GET", "POST"])
+def callback():
+    token = oauth.auth0.authorize_access_token()
+    session["user"] = token
+    return redirect(f"/manage/health?token={token}")
+
+
+@api.route('authorize')
+def login():
+    current_app.logger.info(url_for("api.callback", _external=True))
+    return oauth.auth0.authorize_redirect(
+        redirect_uri=url_for("api.callback", _external=True)
+    )
 
 
 @api.route('/libraries', methods=['GET'])
+@authorized
 def list_libraries():
     response = connector.get(f'{Services.library.api}/libraries', params=dict(request.args))
     if not response.is_valid:
@@ -21,6 +35,7 @@ def list_libraries():
 
 
 @api.route('/libraries/<library_uid>/books', methods=['GET'])
+@authorized
 def get_library_books(library_uid):
     response = connector.get(f'{Services.library.api}/libraries/{library_uid}/books', params=dict(request.args))
     if not response.is_valid:
@@ -30,6 +45,7 @@ def get_library_books(library_uid):
 
 
 @api.route('/rating', methods=['GET'])
+@authorized
 def get_rating():
     response = connector.get(f'{Services.rating.api}/rating', headers=dict(request.headers))
     if not response.is_valid:
@@ -55,6 +71,7 @@ def fill_reservation(reservation):
 
 
 @api.route('/reservations', methods=['GET'])
+@authorized
 def list_reservations():
     response = connector.get(f'{Services.reservation.api}/reservations', headers=dict(request.headers))
     if not response.is_valid:
@@ -68,6 +85,7 @@ def list_reservations():
 
 
 @api.route('/reservations', methods=['POST'])
+@authorized
 def take_book():
     with requests.Session() as session:
         session.headers.update(request.headers)
@@ -132,6 +150,7 @@ def change_rating(rating_delta, headers):
 
 
 @api.route('reservations/<reservation_uid>/return', methods=['POST'])
+@authorized
 def return_book(reservation_uid):
     response = connector.post(
         f'{Services.reservation.api}/reservations/{reservation_uid}/return',
@@ -169,7 +188,7 @@ def return_book(reservation_uid):
         rating_delta = 1
 
     rating_request_data = {
-        'rating_delta':  rating_delta,
+        'rating_delta': rating_delta,
         'headers': dict(request.headers)
     }
 

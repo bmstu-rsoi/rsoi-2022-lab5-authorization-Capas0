@@ -1,14 +1,17 @@
 from dataclasses import dataclass
 from enum import Enum
+from queue import Queue
 from typing import Union
 
 import requests
-from requests.exceptions import ConnectionError
 from flask import current_app, jsonify
+from requests.exceptions import ConnectionError
 
 reservation_api = 'http://reservation:8070/api/v1'
 library_api = 'http://library:8060/api/v1'
 rating_api = 'http://rating:8050/api/v1'
+
+failed_requests = Queue(maxsize=10000)
 
 
 class Services(str, Enum):

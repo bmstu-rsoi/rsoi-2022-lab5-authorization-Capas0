@@ -1,8 +1,8 @@
 from flask import jsonify
 
 from .base import app
-from .routes import api, failed_requests
-from .connector import Services, fallback, MAX_FAILS
+from .routes import api
+from .connector import Services, fallback, MAX_FAILS, failed_requests
 
 app.register_blueprint(api, url_prefix='/api/v1')
 
