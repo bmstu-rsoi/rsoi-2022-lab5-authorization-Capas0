@@ -16,7 +16,6 @@ WORKDIR $APP_HOME
 
 # copy project
 COPY --chown=$APP_USER:$APP_USER src/rating/ $APP_HOME/
-COPY --chown=$APP_USER:$APP_USER .env $APP_HOME/
 
 # change to the app user
 USER $APP_USER
