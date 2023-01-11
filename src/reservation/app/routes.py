@@ -4,6 +4,7 @@ from flask import Blueprint, jsonify, request
 from marshmallow import ValidationError
 from sqlalchemy.exc import DataError
 
+from .auth import authorized
 from .base import db
 from .models import Reservation
 from .schemas import ReservationSchema, TakeBookRequestSchema
@@ -25,9 +26,8 @@ def format_validation_error(text, error):
 
 
 @api.route('/reservations', methods=['GET'])
-def list_reservations():
-    username = request.headers.get('X-User-Name')
-
+@authorized(username=True)
+def list_reservations(username):
     reservations = db.session.execute(
         db.select(Reservation).where(
             Reservation.username == username,
@@ -38,8 +38,8 @@ def list_reservations():
 
 
 @api.route('/reservations', methods=['POST'])
-def take_book():
-    username = request.headers.get('X-User-Name')
+@authorized(username=True)
+def take_book(username):
     try:
         data = TakeBookRequestSchema().load(request.json)
         reservation = Reservation(username=username, start_date=date.today(), status=Reservation.Status.RENTED, **data)
@@ -51,8 +51,8 @@ def take_book():
 
 
 @api.route('reservations/<reservation_uid>/return', methods=['POST'])
-def return_book(reservation_uid):
-    username = request.headers.get('X-User-Name')
+@authorized(username=True)
+def return_book(reservation_uid, username):
     return_date = date.fromisoformat(request.json['date'])
     try:
         reservation = db.session.execute(
@@ -72,8 +72,8 @@ def return_book(reservation_uid):
 
 
 @api.route('reservations/<reservation_uid>', methods=['DELETE'])
-def revoke_reservation(reservation_uid):
-    username = request.headers.get('X-User-Name')
+@authorized(username=True)
+def revoke_reservation(reservation_uid, username):
     try:
         db.session.execute(
             db.delete(Reservation)

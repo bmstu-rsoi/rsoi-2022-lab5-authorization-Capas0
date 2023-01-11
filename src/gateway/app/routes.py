@@ -1,5 +1,5 @@
 import requests
-from flask import Blueprint, request, current_app, jsonify, url_for, redirect
+from flask import Blueprint, request, jsonify, url_for, redirect
 
 from .auth import authorized, oauth
 from .connector import NetworkConnector, Services, failed_requests
@@ -16,7 +16,6 @@ def callback():
 
 @api.route('authorize')
 def login():
-    current_app.logger.info(url_for("api.callback", _external=True))
     return oauth.auth0.authorize_redirect(
         redirect_uri=url_for("api.callback", _external=True)
     )
@@ -65,13 +64,13 @@ def get_rating():
 
 def fill_reservation(reservation):
     book_uid = reservation.get('bookUid')
-    response = connector.get(f'{Services.library.api}/books/{book_uid}')
+    response = connector.get(f'{Services.library.api}/books/{book_uid}', headers=dict(request.headers))
     if response.is_valid:
         reservation['book'] = response.value.json()
         reservation.pop('bookUid')
 
     library_uid = reservation.get('libraryUid')
-    response = connector.get(f'{Services.library.api}/libraries/{library_uid}')
+    response = connector.get(f'{Services.library.api}/libraries/{library_uid}', headers=dict(request.headers))
     if response.is_valid:
         reservation['library'] = response.value.json()
         reservation.pop('libraryUid')
