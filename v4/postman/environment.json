@@ -4,32 +4,32 @@
   "values": [
     {
       "key": "serviceUrl",
-      "value": "",
+      "value": "http://51.250.1.219",
       "enabled": true
     },
     {
       "key": "identityProviderUrl",
-      "value": "",
+      "value": "https://dev-p7whdgfr521w6rkw.us.auth0.com",
       "enabled": true
     },
     {
       "key": "username",
-      "value": "",
+      "value": "kexivoy128@usharer.com",
       "enabled": true
     },
     {
       "key": "password",
-      "value": "",
+      "value": "Cycq8nXbfZwM583",
       "enabled": true
     },
     {
       "key": "clientId",
-      "value": "",
+      "value": "G2W8jDGNUDC0vuy5zTV4fHnYf2dlrAcR",
       "enabled": true
     },
     {
       "key": "clientSecret",
-      "value": "",
+      "value": "ClyGJY6zORjVIdMXLc7AZON5bhUiFKbAzbjNS4ojZSe_FGTXgtX8U-b62070jUxc",
       "enabled": true
     }
   ],
